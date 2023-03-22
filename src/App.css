@@ -15,7 +15,7 @@
 .popups > div:last-child > div > div {
   margin: 10px;
 }
-@media screen and (min-width: 30em) {
+@media screen and (min-width: 40em) {
   .appdiv {
     display: flex;
     flex-wrap: wrap;
