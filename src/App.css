@@ -8,6 +8,7 @@
   cursor: pointer;
 }
 .popups {
+  color: black;
 }
 .popups > div:last-child > div  {
   display: flex;
