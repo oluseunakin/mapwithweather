@@ -33,17 +33,16 @@ function App() {
   const mapContainerRef = useRef(null);
   const mapRef = useRef<mapboxgl.Map>();
   const [searched, setSearched] = useState(cities);
-  let map: mapboxgl.Map;
 
   useEffect(() => {
     if (mapRef.current) return;
-    map = mapRef.current = new mapboxgl.Map({
+    mapRef.current = new mapboxgl.Map({
       container: mapContainerRef.current!,
       style: "mapbox://styles/mapbox/streets-v12",
       center: [-74.5, 40],
       zoom: 9,
     });
-  }, []);
+  }, [base]);
 
   return (
     <div className="appdiv">
@@ -73,8 +72,8 @@ function App() {
                   )}.json?access_token=${mapboxgl.accessToken}`;
                   const d = await (await fetch(url)).json();
                   const center = d.features[0].center;
-                  map.flyTo({ center });
-                  map.on("moveend", async () => {
+                  mapRef.current!.flyTo({ center });
+                  mapRef.current!.on("moveend", async () => {
                     const weatherurl = `https://api.openweathermap.org/data/2.5/forecast?lat=${center[1]}&lon=${center[0]}&cnt=16&appid=${weathertoken}&units=metric`;
                     const weatherJSON = await (await fetch(weatherurl)).json();
                     const weatherlist = [
@@ -115,7 +114,7 @@ function App() {
                     new mapboxgl.Marker(info)
                       .setLngLat(center)
                       .setPopup(popup)
-                      .addTo(map);
+                      .addTo(mapRef.current!);
                   });
                 }}
               >
