@@ -33,16 +33,87 @@ function App() {
   const mapContainerRef = useRef(null);
   const mapRef = useRef<mapboxgl.Map>();
   const [searched, setSearched] = useState(cities);
+  const location = window.navigator.geolocation;
+  let center: mapboxgl.LngLatLike | undefined | any | Array<number>;
+  const [outsideDiv, setOutsideDiv] = useState("");
 
+  async function checkWeather(center: Array<number>) {
+    const weatherurl = `https://api.openweathermap.org/data/2.5/forecast?lat=${center[1]}&lon=${center[0]}&cnt=16&appid=${weathertoken}&units=metric`;
+    const weatherJSON = await (await fetch(weatherurl)).json();
+    const weatherlist = [weatherJSON.list[0], weatherJSON.list[8]];
+    let internal = `<div>`;
+    weatherlist.forEach(
+      (mainweather: {
+        weather: { main: any }[];
+        main: { temp: any; humidity: any; pressure: any };
+        wind: { speed: any };
+        dt_txt: any;
+      }) => {
+        const weatherDiv = `<div>
+                            <p>${mainweather.dt_txt}</p>
+                            <h1>${mainweather.weather[0].main}</h1>
+                            <h2>Temperature ${mainweather.main.temp}C</h2>
+                            <div>
+                              <span>Wind Speed ${mainweather.wind.speed}</span>
+                              <span>Humidity ${mainweather.main.humidity}</span>
+                              <span>Pressure ${mainweather.main.pressure}</span>
+                            </div>
+                          </div>`;
+        internal += weatherDiv;
+      }
+    );
+    internal += "</div>";
+    return internal;
+  }
+
+  function addPopup(center: Array<number>) {
+    return new mapboxgl.Popup({
+      offset: 10,
+      maxWidth: "none",
+      className: "popups",
+    })
+      .setLngLat([center[0], center[1]])
+      .setHTML(outsideDiv);
+  }
+  function addTag(
+    center: Array<number>,
+    mapRef: React.MutableRefObject<mapboxgl.Map | undefined>
+  ) {
+    const info = document.createElement("div");
+    info.className = "info";
+    new mapboxgl.Marker(info)
+      .setLngLat([center[0], center[1]])
+      .setPopup(addPopup(center))
+      .addTo(mapRef.current!);
+  }
   useEffect(() => {
+    if (location) {
+      location.getCurrentPosition(
+        async (position: GeolocationPosition) => {
+          center = [position.coords.longitude, position.coords.latitude];
+          const internal = await checkWeather(center);
+          createMap();
+          setOutsideDiv(internal);
+        },
+        async () => {
+          center = [-74.5, 40];
+          const internal = await checkWeather(center);
+          createMap();
+          setOutsideDiv(internal);
+        }
+      );
+    }
+  }, [outsideDiv]);
+  function createMap() {
+    addTag(center, mapRef);
     if (mapRef.current) return;
     mapRef.current = new mapboxgl.Map({
       container: mapContainerRef.current!,
       style: "mapbox://styles/mapbox/streets-v12",
-      center: [-74.5, 40],
+      center,
       zoom: 9,
     });
-  }, [base]);
+  }
 
   return (
     <div className="appdiv">
@@ -57,7 +128,7 @@ function App() {
                 .map((city) => city.match(searchRegex))
                 .filter((city) => city !== null)
                 .map((city) => city!.input!);
-              setSearched(citiess)
+              setSearched(citiess);
             }}
           />
         </div>
@@ -74,47 +145,8 @@ function App() {
                   const center = d.features[0].center;
                   mapRef.current!.flyTo({ center });
                   mapRef.current!.on("moveend", async () => {
-                    const weatherurl = `https://api.openweathermap.org/data/2.5/forecast?lat=${center[1]}&lon=${center[0]}&cnt=16&appid=${weathertoken}&units=metric`;
-                    const weatherJSON = await (await fetch(weatherurl)).json();
-                    const weatherlist = [
-                      weatherJSON.list[0],
-                      weatherJSON.list[8],
-                    ];
-                    let outsideDiv = `<div>`;
-                    weatherlist.forEach(
-                      (mainweather: {
-                        weather: { main: any }[];
-                        main: { temp: any; humidity: any; pressure: any };
-                        wind: { speed: any };
-                        dt_txt: any;
-                      }) => {
-                        const weatherDiv = `<div>
-                          <p>${mainweather.dt_txt}</p>
-                          <h1>${mainweather.weather[0].main}</h1>
-                          <h2>Temperature ${mainweather.main.temp}C</h2>
-                          <div>
-                            <span>Wind Speed ${mainweather.wind.speed}</span>
-                            <span>Humidity ${mainweather.main.humidity}</span>
-                            <span>Pressure ${mainweather.main.pressure}</span>
-                          </div>
-                        </div>`;
-                        outsideDiv += weatherDiv;
-                      }
-                    );
-                    outsideDiv += "</div>";
-                    const info = document.createElement("div");
-                    info.className = "info";
-                    const popup = new mapboxgl.Popup({
-                      offset: 10,
-                      maxWidth: "none",
-                      className: "popups",
-                    })
-                      .setLngLat(center)
-                      .setHTML(outsideDiv);
-                    new mapboxgl.Marker(info)
-                      .setLngLat(center)
-                      .setPopup(popup)
-                      .addTo(mapRef.current!);
+                    addTag(center, mapRef);
+                    checkWeather(center);
                   });
                 }}
               >
