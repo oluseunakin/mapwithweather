@@ -2,15 +2,16 @@
   max-width: 1280px;
 }
 .info {
-  background-image: url('/home_pin.png');
-  width: 48px;
-  height: 48px;
+  background-image: url("/home_pin.png");
+  width: 42px;
+  height: 73px;
   cursor: pointer;
+  background-repeat: no-repeat;
 }
 .popups {
   color: black;
 }
-.popups > div:last-child > div  {
+.popups > div:last-child > div {
   display: flex;
 }
 .popups > div:last-child > div > div {
@@ -20,28 +21,46 @@
   .appdiv {
     display: flex;
     flex-wrap: wrap;
+    gap: 20px;
+  }
+  aside {
+    flex: 1;
+  }
+  .mapContainer {
+    flex: 3;
+
   }
 }
-.appdiv aside {
-  padding: 2%;
-  flex: 1;
+.mapContainer > div {
+  top: 10%;
+  height: 90%;
+}
+aside {
+  background-color: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1), 0 8px 16px rgba(0, 0, 0, 0.1);
 }
 aside div {
   display: flex;
   justify-content: center;
 }
 .mapContainer {
-  flex: 3;
-  height: 97vh;
+  height: 100vh;
 }
-ul{
+ul {
   margin-block: 0;
   padding: 0;
   display: flex;
   flex-wrap: wrap;
-  gap: 5px
+  gap: 10px;
+  margin-top: 5vh;
+  justify-content: center;
 }
-li{
+aside input {
+  padding: 20px;
+  border-radius: 20px;
+  margin-top: 20px;
+}
+li {
   list-style: none;
 }
 .logo {
@@ -56,7 +75,6 @@ li{
 .logo.react:hover {
   filter: drop-shadow(0 0 2em #61dafbaa);
 }
-
 @keyframes logo-spin {
   from {
     transform: rotate(0deg);
@@ -65,17 +83,14 @@ li{
     transform: rotate(360deg);
   }
 }
-
 @media (prefers-reduced-motion: no-preference) {
   a:nth-of-type(2) .logo {
     animation: logo-spin infinite 20s linear;
   }
 }
-
 .card {
   padding: 2em;
 }
-
 .read-the-docs {
   color: #888;
 }

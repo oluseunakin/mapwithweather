@@ -75,6 +75,7 @@ function App() {
       .setLngLat([center[0], center[1]])
       .setHTML(outsideDiv);
   }
+
   function addTag(
     center: Array<number>,
     mapRef: React.MutableRefObject<mapboxgl.Map | undefined>
@@ -86,6 +87,8 @@ function App() {
       .setPopup(addPopup(center))
       .addTo(mapRef.current!);
   }
+
+
   useEffect(() => {
     if (location) {
       location.getCurrentPosition(
@@ -104,6 +107,7 @@ function App() {
       );
     }
   }, [outsideDiv]);
+
   function createMap() {
     addTag(center, mapRef);
     if (mapRef.current) return;
@@ -156,7 +160,9 @@ function App() {
           ))}
         </ul>
       </aside>
-      <main ref={mapContainerRef} className="mapContainer"></main>
+      <main className="mapContainer">
+        <div ref={mapContainerRef}></div>
+      </main>
     </div>
   );
 }
